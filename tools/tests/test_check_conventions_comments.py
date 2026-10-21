@@ -715,6 +715,7 @@ class RepositoryChecksTests(unittest.TestCase):
         second.parent.mkdir(parents=True)
         second.write_text("".join(f"int APS5_VABI sceLargeExportSet{index}(int value) {{ return value; }}\n" for index in range(2000)), encoding="utf-8")
         self.commit()
+        first.write_text("", encoding="utf-8")
         check = Check("HEAD~1", "HEAD")
         check.code()
         self.assertEqual(check.findings, [("duplicate-export", "core/libs/prx/libSceB/Export.cpp", 2000, "sceLargeExportSet1999 is also in libSceA")])
