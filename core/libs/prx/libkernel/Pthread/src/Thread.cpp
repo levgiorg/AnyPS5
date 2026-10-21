@@ -39,6 +39,7 @@ static constexpr std::size_t DEFAULT_STACK_SIZE = 1u << 20;
 static constexpr std::size_t HOST_STACK_MARGIN = 1u << 20;
 static constexpr int DETACH_DETACHED = 1;
 static constexpr std::size_t THREAD_NAME_CAPACITY = 32;
+static constexpr std::uint16_t GUEST_X87_CONTROL_WORD = 0x37f;
 
 #ifdef _WIN32
 #include <windows.h>
@@ -648,6 +649,16 @@ asm(".text\n"
     .cfi_endproc
 )" APS5_ASM_FUNCTION_END("Aps5CallGuestEntry_nid_no_patch"));
 
+static std::uint16_t ReadX87ControlWord() {
+    std::uint16_t control = 0;
+    asm volatile("fnstcw %0" : "=m"(control));
+    return control;
+}
+
+static void WriteX87ControlWord(std::uint16_t control) {
+    asm volatile("fldcw %0" : : "m"(control));
+}
+
 static void RunThread(std::unique_ptr<ThreadArgs> args) {
     APS5_LOG_OUT("RunThread entry=0x%llx arg=%p self=%p", static_cast<unsigned long long>(reinterpret_cast<std::uintptr_t>(args->entry)), args->arg, static_cast<void*>(args->self));
     const auto entry = args->entry;
@@ -664,6 +675,11 @@ static void RunThread(std::unique_ptr<ThreadArgs> args) {
 #ifndef _WIN32
     pthread_sigmask(SIG_SETMASK, &signalMask, nullptr);
 #endif
+    struct X87ControlWord {
+        std::uint16_t host;
+        X87ControlWord() : host(ReadX87ControlWord()) { WriteX87ControlWord(GUEST_X87_CONTROL_WORD); }
+        ~X87ControlWord() { WriteX87ControlWord(host); }
+    } x87ControlWord;
     finishThread(self, Aps5CallGuestEntry_nid_no_patch(entry, arg));
     CurrentGuestState().current = nullptr;
 }
