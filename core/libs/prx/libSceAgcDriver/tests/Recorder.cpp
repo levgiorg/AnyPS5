@@ -1651,15 +1651,21 @@ void keyProofTests(const Device& device, Recorder& recorder) {
     before = KeyProofCounts();
     Require(before.scanned == after.scanned + 1 && proof.keys == DccKeys::Clear0001, "(9) the CPU write did not make a scan");
     Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001 && KeyProofCounts().proved == before.proved + 1, "(9) the new keys were not proved");
-    // A recorded write over the keys (noted and stamped as the driver's key stores are): the scans
-    // are not kept until its batch signaled.
+    // A recorded write over the keys (noted and stamped as the driver's key stores are): the scan
+    // waits for the recorded work that writes the keys before it reads them, so the work is no
+    // longer pending when the proof's stability is decided and the proof the scan keeps matches
+    // the keys it read.
     recorder.NotePendingWrite(address, keyCount);
     MarkWritten(address, keyCount);
     before = KeyProofCounts();
-    Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001 && proof.generation == 0, "(9) a scan under a pending write was kept");
-    Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001 && proof.generation == 0, "(9) a second scan under a pending write was kept");
+    Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001, "(9) the keys changed under a pending write");
+    Require(!recorder.DescribePendingWrite(address, keyCount).has_value(), "(9) the scan under a pending write did not wait for it");
     after = KeyProofCounts();
-    Require(after.scanned == before.scanned + 2 && after.unstable == before.unstable + 2 && after.proved == before.proved, "(9) unstable scans were miscounted");
+    Require(after.scanned == before.scanned + 1 && after.proved == before.proved && after.unstable == before.unstable && proof.generation != 0, "(9) the scan under a waited-for pending write kept no proof");
+    before = after;
+    Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001, "(9) the second scan under a pending write read other keys");
+    after = KeyProofCounts();
+    Require(after.scanned == before.scanned && after.proved == before.proved + 1 && after.unstable == before.unstable, "(9) the proof under a waited-for pending write was not reused");
     recorder.Submit();
     device.WaitQueue();
     Require(ProvedClearKeys(resource, surfaceBytes, proof) == DccKeys::Clear0001 && proof.generation != 0, "(9) a signaled write kept the scan unstable");
