@@ -132,10 +132,97 @@ static void CheckDontWait() {
     Require(close_nid_postfix(receiver) == 0 && close_nid_postfix(sender) == 0);
 }
 
+static void CheckUnassociatedName() {
+    const int socket = socket_nid_postfix(2, 2, 0);
+    Require(socket >= 0);
+    std::array<unsigned char, 16> address{16, 2, 0, 0, 127, 0, 0, 1};
+    Require(bind_nid_postfix(socket, address.data(), address.size()) == 0);
+    std::uint32_t size = address.size();
+    Require(getsockname_nid_postfix(socket, address.data(), &size) == 0 && size == address.size());
+    Require(address[4] == 127 && address[5] == 0 && address[6] == 0 && address[7] == 1);
+    Require(close_nid_postfix(socket) == 0);
+}
+
+static void CheckDissolvedExplicitPortName() {
+    for (int attempt = 0; attempt < 8; ++attempt) {
+        const int probe = socket_nid_postfix(2, 2, 0);
+        Require(probe >= 0);
+        std::array<unsigned char, 16> address{16, 2, 0, 0, 127, 0, 0, 1};
+        Require(bind_nid_postfix(probe, address.data(), address.size()) == 0);
+        std::uint32_t size = address.size();
+        Require(getsockname_nid_postfix(probe, address.data(), &size) == 0);
+        const auto port = static_cast<std::uint16_t>((address[2] << 8) | address[3]);
+        Require(port != 0);
+        Require(close_nid_postfix(probe) == 0);
+        address[2] = static_cast<unsigned char>(port >> 8);
+        address[3] = static_cast<unsigned char>(port & 0xff);
+        const int dissolved = socket_nid_postfix(2, 2, 0);
+        Require(dissolved >= 0);
+        if (bind_nid_postfix(dissolved, address.data(), address.size()) != 0) {
+            Require(*__error_nid_postfix() == 48);
+            Require(close_nid_postfix(dissolved) == 0);
+            continue;
+        }
+        const int peer = socket_nid_postfix(2, 2, 0);
+        Require(peer >= 0);
+        std::array<unsigned char, 16> peerAddress{16, 2, 0, 0, 127, 0, 0, 1};
+        Require(bind_nid_postfix(peer, peerAddress.data(), peerAddress.size()) == 0);
+        size = peerAddress.size();
+        Require(getsockname_nid_postfix(peer, peerAddress.data(), &size) == 0);
+        Require(connect_nid_postfix(dissolved, peerAddress.data(), peerAddress.size()) == 0);
+        const std::array<unsigned char, 16> unspecified{16, 0};
+        Require(connect_nid_postfix(dissolved, unspecified.data(), unspecified.size()) == -1 && *__error_nid_postfix() == 47);
+        std::array<unsigned char, 16> name{};
+        size = name.size();
+        Require(getsockname_nid_postfix(dissolved, name.data(), &size) == 0 && size == name.size());
+        Require(name[2] == address[2] && name[3] == address[3]);
+        Require(name[4] == 0 && name[5] == 0 && name[6] == 0 && name[7] == 0);
+        Require(close_nid_postfix(peer) == 0 && close_nid_postfix(dissolved) == 0);
+        return;
+    }
+    Require(false);
+}
+
+static void CheckDissolvedIpv6Name() {
+    const int peer = socket_nid_postfix(28, 2, 0);
+    if (peer < 0 && *__error_nid_postfix() == 47) return;
+    Require(peer >= 0);
+    const int dissolved = socket_nid_postfix(28, 2, 0);
+    Require(dissolved >= 0);
+    std::array<unsigned char, 28> peerAddress{};
+    peerAddress[0] = 28;
+    peerAddress[1] = 28;
+    peerAddress[23] = 1;
+    std::array<unsigned char, 28> dissolvedAddress = peerAddress;
+    if (bind_nid_postfix(peer, peerAddress.data(), peerAddress.size()) != 0 && *__error_nid_postfix() == 49) {
+        Require(close_nid_postfix(peer) == 0 && close_nid_postfix(dissolved) == 0);
+        return;
+    }
+    Require(bind_nid_postfix(dissolved, dissolvedAddress.data(), dissolvedAddress.size()) == 0);
+    std::uint32_t size = peerAddress.size();
+    Require(getsockname_nid_postfix(peer, peerAddress.data(), &size) == 0);
+    size = dissolvedAddress.size();
+    Require(getsockname_nid_postfix(dissolved, dissolvedAddress.data(), &size) == 0);
+    Require(connect_nid_postfix(dissolved, peerAddress.data(), peerAddress.size()) == 0);
+    const std::array<unsigned char, 28> unspecified{28, 0};
+    Require(connect_nid_postfix(dissolved, unspecified.data(), unspecified.size()) == -1 && *__error_nid_postfix() == 47);
+    std::array<unsigned char, 28> name{};
+    size = name.size();
+    Require(getpeername_nid_postfix(dissolved, name.data(), &size) == -1 && *__error_nid_postfix() == 57);
+    size = name.size();
+    Require(getsockname_nid_postfix(dissolved, name.data(), &size) == 0 && size == name.size());
+    Require(name[2] == dissolvedAddress[2] && name[3] == dissolvedAddress[3]);
+    for (int offset = 8; offset < 24; ++offset) Require(name[static_cast<std::size_t>(offset)] == 0);
+    Require(close_nid_postfix(peer) == 0 && close_nid_postfix(dissolved) == 0);
+}
+
 int main() {
     CheckAddressLengths(2);
     CheckAddressLengths(28);
     CheckDontWait();
+    CheckUnassociatedName();
+    CheckDissolvedExplicitPortName();
+    CheckDissolvedIpv6Name();
     const int receiver = socket_nid_postfix(2, 2, 0);
     const int sender = socket_nid_postfix(2, 2, 17);
     Require(receiver >= 0 && sender >= 0 && receiver != sender);
@@ -271,9 +358,7 @@ int main() {
     size = localName.size();
     Require(getsockname_nid_postfix(dissolved, localName.data(), &size) == 0);
     Require(localName[2] == dissolvedAddress[2] && localName[3] == dissolvedAddress[3]);
-#ifndef _WIN32
     Require(localName[4] == 0 && localName[5] == 0 && localName[6] == 0 && localName[7] == 0);
-#endif
     Require(send_nid_postfix(dissolved, "x", 1, 0) == -1 && *__error_nid_postfix() == 39);
     const char unrelated[] = "unrelated sender";
     Require(sendto_nid_postfix(other, unrelated, sizeof(unrelated), 0, dissolvedAddress.data(), dissolvedAddress.size()) == sizeof(unrelated));

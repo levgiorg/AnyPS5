@@ -120,6 +120,7 @@ struct Socket : KernelSocketPoll::NativeOwner {
     GuestSockets::SocketOptionState options;
     bool receiveShut = false;
     bool sendShut = false;
+    bool localAddressCleared = false;
     Socket(NativeSocket value, int family, int type) : value(value), family(family), type(type) {}
     ~Socket() {
         if (value == Invalid) return;
@@ -312,7 +313,11 @@ bool ZeroPortConnect(const Socket& socket, const void* address, std::uint32_t le
     Fail(49);
     return true;
 }
-int Disconnect(const Socket& socket) {
+void ClearLocalAddress(Socket& socket, bool cleared) {
+    std::lock_guard lock(socket.modeMutex);
+    socket.localAddressCleared = cleared;
+}
+int Disconnect(Socket& socket) {
     sockaddr_storage peer{};
     socklen_t peerSize = sizeof(peer);
     if (::getpeername(socket.value, reinterpret_cast<sockaddr*>(&peer), &peerSize) != 0) return 0;
@@ -331,11 +336,15 @@ int Disconnect(const Socket& socket) {
     sockaddr_storage current{};
     socklen_t currentSize = sizeof(current);
     if (::getsockname(socket.value, reinterpret_cast<sockaddr*>(&current), &currentSize) != 0) return Fail(NativeError());
-    if (PortOf(current) != 0) return 0;
+    if (PortOf(current) != 0) {
+        ClearLocalAddress(socket, true);
+        return 0;
+    }
     sockaddr_storage wildcard{};
     wildcard.ss_family = local.ss_family;
     PortOf(wildcard) = PortOf(local);
     if (::bind(socket.value, reinterpret_cast<sockaddr*>(&wildcard), localSize) != 0) return Fail(NativeError());
+    ClearLocalAddress(socket, true);
     return 0;
 }
 void GuestAddress(const sockaddr_storage& native, void* output, std::uint32_t* length) {
@@ -1214,7 +1223,9 @@ int APS5_VABI connect_nid_postfix(int descriptor, const void* address, std::uint
         std::lock_guard lock(socket->modeMutex);
         socket->options.reportedError = 0;
     }
-    return ::connect(socket->value, reinterpret_cast<sockaddr*>(&native), size) ? Fail(ConnectError()) : 0;
+    if (::connect(socket->value, reinterpret_cast<sockaddr*>(&native), size)) return Fail(ConnectError());
+    ClearLocalAddress(*socket, false);
+    return 0;
 }
 int APS5_VABI listen_nid_postfix(int descriptor, int backlog) {
     const auto socket = Lookup(descriptor);
@@ -1288,7 +1299,9 @@ int APS5_VABI bind_nid_postfix(int descriptor, const void* address, std::uint32_
     sockaddr_storage native{};
     socklen_t size;
     if (!Address(address, length, native, size)) return -1;
-    return ::bind(socket->value, reinterpret_cast<sockaddr*>(&native), size) ? Fail(NativeError()) : 0;
+    if (::bind(socket->value, reinterpret_cast<sockaddr*>(&native), size)) return Fail(NativeError());
+    ClearLocalAddress(*socket, false);
+    return 0;
 }
 int APS5_VABI shutdown_nid_postfix(int descriptor, int how) {
     const auto socket = Lookup(descriptor);
@@ -1315,6 +1328,13 @@ int APS5_VABI getsockname_nid_postfix(int descriptor, void* address, std::uint32
 #else
         return Fail(NativeError());
 #endif
+    }
+    {
+        std::lock_guard lock(socket->modeMutex);
+        if (socket->localAddressCleared) {
+            if (native.ss_family == AF_INET) reinterpret_cast<sockaddr_in&>(native).sin_addr = {};
+            else if (native.ss_family == AF_INET6) reinterpret_cast<sockaddr_in6&>(native).sin6_addr = {};
+        }
     }
     GuestAddress(native, address, length);
     return 0;
