@@ -11,6 +11,31 @@ static_assert(sizeof(ApplicationInfo) == 152);
 
 extern "C" {
 
+int APS5_VABI sceApplicationExitSpawn3(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+int APS5_VABI sceApplicationKickCoredump3(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+int APS5_VABI sceApplicationNotifyUnmountForExitSpawn(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+int APS5_VABI sceApplicationSendResultOfDebuggerRestoreRequest(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+int APS5_VABI sceApplicationSendResultOfDebuggerSaveRequest(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+int APS5_VABI sceApplicationSwitchToPprNativeMode(void) {
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
+}
+
 int APS5_VABI sceApplicationGetAppInfoByAppId(std::uint32_t applicationId, ApplicationInfo* info) {
     NotImplemented_nid_no_patch(__func__);
     return 0;

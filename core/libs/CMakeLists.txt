@@ -623,6 +623,7 @@ if(BUILD_TESTING)
             "PATH=path_list_prepend:$<TARGET_FILE_DIR:libSceAmpr>")
     endif()
 
+
     if(MINGW)
         target_compile_options(savedata_core_write_replacement_tests PRIVATE -fasynchronous-unwind-tables)
         target_compile_options(savedata_native_write_replacement_tests PRIVATE -fasynchronous-unwind-tables)

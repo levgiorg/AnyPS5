@@ -158,6 +158,10 @@ if(BUILD_TESTING)
             ${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/test_progress_read_encoding.py)
         add_test(NAME import_audit COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/test_import_audit.py)
+        add_test(NAME pending_export_nids COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/test_pending_export_nids.py)
+        set_tests_properties(pending_export_nids PROPERTIES TIMEOUT 20
+            ENVIRONMENT_MODIFICATION "ANYPS5_SOURCE_ROOT=string_append:${CMAKE_CURRENT_SOURCE_DIR}")
         add_test(NAME unwrap_self COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/test_unwrap_self.py)
         foreach(shard RANGE 0 11)
