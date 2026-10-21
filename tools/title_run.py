@@ -19,7 +19,7 @@ import unwrap_self
 from package_release import windows_runtime
 OUTCOMES = ("relink-failed", "crashed", "exited", "stalled", "blank", "rendering")
 TITLE_ID = re.compile(r"[A-Z]{4}[0-9]{5}")
-TITLE_FIELDS = {"relink": list, "fixed_base": str, "executables": list, "seconds": int, "env": dict}
+TITLE_FIELDS = {"relink": list, "fixed_base": str, "executables": list, "seconds": int, "env": dict, "smoke": bool}
 FIXED_BASE_FLAGS = {"windows": "--windows-fixed-base", "linux": "--linux-fixed-base"}
 
 
@@ -37,6 +37,26 @@ def load_titles(path):
             if not all(isinstance(item, str) for item in items):
                 raise ValueError(f"{path}: {title_id}: {key} must hold strings")
     return titles
+
+
+def smoke_titles(titles):
+    return sorted(title_id for title_id, entry in titles.items() if entry.get("smoke"))
+
+
+def select_ids(requested, found, titles, smoke):
+    if requested:
+        ids = list(requested)
+    elif smoke:
+        ids = smoke_titles(titles)
+        if not ids:
+            raise ValueError("the catalog marks no title as a smoke title")
+    else:
+        ids = sorted(found)
+    missing = [title_id for title_id in ids if title_id not in found]
+    if missing and not smoke:
+        raise ValueError(f"not found under --games: {', '.join(missing)}")
+    skipped = {title_id: "not found under --games" for title_id in missing}
+    return [title_id for title_id in ids if title_id not in skipped], skipped
 
 
 def relink_args(entry, platform):
@@ -167,6 +187,10 @@ def render_markdown(summary, previous=None):
             old = previous["titles"].get(title_id)
             row.append(worst(old["runs"]) if old else "new")
         lines.append("| " + " | ".join(row) + " |")
+    skipped = summary.get("skipped") or {}
+    if skipped:
+        names = ", ".join(f"{title_id} ({reason})" for title_id, reason in sorted(skipped.items()))
+        lines += ["", f"Skipped: {names}"]
     return "\n".join(lines + [""])
 
 
@@ -493,6 +517,7 @@ def main(argv=None):
     parser.add_argument("--seconds", type=positive, help="run length for every title (default: the title's, else 60)")
     parser.add_argument("--note", default="", help="free text for the report, e.g. 'main + #6814'")
     parser.add_argument("--compare", type=Path, help="summary.json of an earlier run")
+    parser.add_argument("--smoke", action="store_true", help="run the catalog's smoke set of titles")
     parser.add_argument("--titles", type=Path, default=ROOT / "tools/titles.json")
     args = parser.parse_args(argv)
     args.out = args.out or args.build / "title-runs"
@@ -500,18 +525,21 @@ def main(argv=None):
     platform = "windows" if os.name == "nt" else "macos" if sys.platform == "darwin" else "linux"
     titles = load_titles(args.titles)
     found = discover(args.games)
-    ids = args.ids or sorted(found)
-    missing = [title_id for title_id in ids if title_id not in found]
-    if missing:
-        raise SystemExit(f"not found under --games: {', '.join(missing)}")
+    try:
+        ids, skipped = select_ids(args.ids, found, titles, args.smoke)
+    except ValueError as error:
+        raise SystemExit(str(error)) from None
+    for title_id, reason in skipped.items():
+        print(f"{title_id} skipped: {reason}", flush=True)
     if previous and args.ids:
         previous["titles"] = {title_id: title for title_id, title in previous["titles"].items() if title_id in ids}
     source = source_root(args.build)
     commit = git(source, "rev-parse", "--short", "HEAD")
     output = args.out.resolve() / f"{commit}-{datetime.datetime.now():%Y%m%d-%H%M%S}"
+    output.mkdir(parents=True, exist_ok=True)
     summary = {"build": {"commit": commit, "dirty": bool(git(source, "status", "--porcelain", "--untracked-files=no")), "note": args.note},
                "machine": {"os": "", "gpu": "", "driver": "", "cpu": ""}, "runs": args.runs, "seconds": args.seconds or 60,
-               "driver_cache": "isolated" if platform == "linux" else "shared (not isolated)", "titles": {}}
+               "driver_cache": "isolated" if platform == "linux" else "shared (not isolated)", "titles": {}, "skipped": skipped}
     for title_id in ids:
         entry = titles.get(title_id, {})
         seconds = args.seconds or entry.get("seconds", 60)

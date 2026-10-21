@@ -1,14 +1,18 @@
 {
   "PPSA01153": {"relink": ["--trap-sdk-syscall-stubs"]},
+  "PPSA17641": {"smoke": true},
   "PPSA68091": {"relink": ["--registry"], "fixed_base": "0x400000"},
   "PPSA69421": {"relink": ["--trap-sdk-syscall-stubs"]},
-  "PPSA85300": {"relink": ["--registry"], "fixed_base": "0x400000"},
+  "PPSA85300": {"relink": ["--registry"], "fixed_base": "0x400000", "smoke": true},
   "PPSA97358": {"relink": ["--registry"], "fixed_base": "0x400000"},
+  "PPSA98766": {"smoke": true},
   "PPSA99004": {"relink": ["--trap-sdk-syscall-stubs"]},
   "PPSA99008": {"relink": ["--trap-sdk-syscall-stubs"]},
   "PPSA99011": {"relink": ["--trap-sdk-syscall-stubs"]},
   "PPSA99169": {"executables": ["picker/picker.bin"]},
-  "PPSA99203": {"relink": ["--trap-sdk-syscall-stubs"]},
+  "PPSA99203": {"relink": ["--trap-sdk-syscall-stubs"], "smoke": true},
   "PPSA99288": {"relink": ["--trap-sdk-syscall-stubs"]},
-  "PPSA99360": {"relink": ["--trap-sdk-syscall-stubs"]}
+  "PPSA99360": {"relink": ["--trap-sdk-syscall-stubs"]},
+  "PPSA99505": {"smoke": true},
+  "PPSA99666": {"smoke": true}
 }

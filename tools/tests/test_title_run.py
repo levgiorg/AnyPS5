@@ -49,6 +49,24 @@ class TitlesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "PPSA00001: unknown field name"):
             title_run.load_titles(self.write({"PPSA00001": {"name": "Light"}}))
 
+    def test_smoke_flag_must_be_a_boolean(self):
+        self.assertEqual(title_run.load_titles(self.write({"PPSA00001": {"smoke": True}}))["PPSA00001"]["smoke"], True)
+        for value in ("yes", 1, 0, None, []):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "PPSA00001: smoke must be bool"):
+                    title_run.load_titles(self.write({"PPSA00001": {"smoke": value}}))
+
+    def test_smoke_titles_are_the_marked_ones(self):
+        titles = title_run.load_titles(self.write({"PPSA00002": {}, "PPSA00001": {"smoke": True}, "PPSA00003": {"smoke": True}}))
+        self.assertEqual(title_run.smoke_titles(titles), ["PPSA00001", "PPSA00003"])
+
+    def test_smoke_titles_are_empty_without_a_marked_title(self):
+        self.assertEqual(title_run.smoke_titles(title_run.load_titles(self.write({"PPSA00001": {}}))), [])
+
+    def test_repository_file_marks_a_smoke_set(self):
+        titles = title_run.load_titles(title_run.ROOT / "tools/titles.json")
+        self.assertEqual(title_run.smoke_titles(titles), ["PPSA17641", "PPSA85300", "PPSA98766", "PPSA99203", "PPSA99505", "PPSA99666"])
+
     def test_default_entry(self):
         self.assertEqual(title_run.relink_args({}, "windows"), ["--windows"])
         self.assertEqual(title_run.relink_args({}, "linux"), [])
@@ -63,6 +81,44 @@ class TitlesTests(unittest.TestCase):
     def test_fixed_base_on_macos_is_refused(self):
         with self.assertRaisesRegex(ValueError, "fixed_base is not supported on macos"):
             title_run.relink_args({"fixed_base": "0x400000"}, "macos")
+
+
+class SelectionTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name)
+        self.titles = {"PPSA00001": {"smoke": True}, "PPSA00002": {}, "PPSA00003": {"smoke": True}}
+        self.found = {"PPSA00001": {}, "PPSA00002": {}}
+
+    def test_smoke_selects_the_marked_titles(self):
+        ids, skipped = title_run.select_ids([], self.found, self.titles, True)
+        self.assertEqual(ids, ["PPSA00001"])
+        self.assertEqual(skipped, {"PPSA00003": "not found under --games"})
+
+    def test_smoke_skips_a_missing_title_instead_of_failing(self):
+        ids, skipped = title_run.select_ids([], {}, self.titles, True)
+        self.assertEqual(ids, [])
+        self.assertEqual(sorted(skipped), ["PPSA00001", "PPSA00003"])
+        self.assertEqual(set(skipped.values()), {"not found under --games"})
+
+    def test_smoke_without_a_marked_title_is_refused(self):
+        with self.assertRaisesRegex(ValueError, "the catalog marks no title as a smoke title"):
+            title_run.select_ids([], self.found, {"PPSA00002": {}}, True)
+
+    def test_a_named_title_that_is_missing_is_refused(self):
+        with self.assertRaisesRegex(ValueError, "not found under --games: PPSA00009"):
+            title_run.select_ids(["PPSA00009"], self.found, self.titles, False)
+
+    def test_a_named_title_is_run_even_when_it_is_not_marked(self):
+        ids, skipped = title_run.select_ids(["PPSA00002"], self.found, self.titles, True)
+        self.assertEqual(ids, ["PPSA00002"])
+        self.assertEqual(skipped, {})
+
+    def test_without_a_selection_every_found_title_runs(self):
+        ids, skipped = title_run.select_ids([], self.found, self.titles, False)
+        self.assertEqual(ids, ["PPSA00001", "PPSA00002"])
+        self.assertEqual(skipped, {})
 
 
 def bmp(path, width, height, color):
@@ -182,6 +238,13 @@ class ReportTests(unittest.TestCase):
         before = summary({"PPSA85300": {"name": "Light", "version": "0.4", "runs": [run("rendering"), run("rendering", "warm")]},
                           "PPSA97358": {"name": "XPSemu", "version": "A2.1", "runs": [run("stalled"), run("stalled", "warm")]}})
         self.assertIn("Missing: XPSemu (PPSA97358)", title_run.render_markdown(now, before))
+
+    def test_render_markdown_lists_skipped_titles(self):
+        now = summary({"PPSA85300": {"name": "Light", "version": "0.4", "runs": [run("rendering"), run("rendering", "warm")]}})
+        now["skipped"] = {"PPSA98766": "not found under --games"}
+        report = title_run.render_markdown(now)
+        self.assertIn("Skipped: PPSA98766 (not found under --games)", report)
+        self.assertNotIn("Skipped", title_run.render_markdown(summary({})))
 
 
 def package(root, title_id, version="01.000.000", name="Game"):
