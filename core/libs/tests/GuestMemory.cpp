@@ -3176,6 +3176,38 @@ static void CheckPosixFixedFileReleasesFlexibleAccounting() {
 }
 #endif
 
+#if defined(_WIN32)
+static void CheckWindowsFixedPrivateFileReleasesFlexibleAccounting() {
+    constexpr std::size_t page = 0x4000;
+    constexpr int fixedPrivate = 0x12;
+    const auto path = std::filesystem::path("anyps5-fixed-private-file-accounting-" +
+        std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".bin");
+    {
+        std::ofstream stream(path, std::ios::binary);
+        std::vector<char> data(page, 0x6d);
+        stream.write(data.data(), static_cast<std::streamsize>(data.size()));
+    }
+    const int fd = sceKernelOpen(path.string().c_str(), SCE_KERNEL_O_RDONLY, 0);
+    Require(fd >= 0);
+    std::size_t before = 0;
+    std::size_t available = 0;
+    Require(sceKernelAvailableFlexibleMemorySize(&before) == 0);
+    void* base = nullptr;
+    Require(sceKernelMapFlexibleMemory(&base, page * 3, 3, 0) == 0 && base != nullptr);
+    Require(sceKernelAvailableFlexibleMemorySize(&available) == 0 && available == before - page * 3);
+    auto* bytes = static_cast<unsigned char*>(base);
+    bytes[0] = 0x31;
+    bytes[page * 2] = 0x51;
+    Require(mmap_nid_postfix(bytes + page, page, 3, fixedPrivate, fd, 0) == bytes + page);
+    Require(bytes[0] == 0x31 && bytes[page] == 0x6d && bytes[page * 2] == 0x51);
+    Require(sceKernelAvailableFlexibleMemorySize(&available) == 0 && available == before - page * 2);
+    Require(sceKernelMunmap(base, page * 3) == 0);
+    Require(sceKernelAvailableFlexibleMemorySize(&available) == 0 && available == before);
+    Require(sceKernelClose(fd) == 0);
+    std::filesystem::remove(path);
+}
+#endif
+
 static void CheckSceKernelMmap() {
     constexpr std::size_t page = 0x4000;
     void* mapped = nullptr;
@@ -3279,8 +3311,14 @@ int main(int argc, char** argv) {
     if (argc == 2 && std::strcmp(argv[1], "fixed-anonymous") == 0) {
         CheckPosixFixedAnonymousMapping();
         CheckPosixFixedAnonymousReleasesFlexibleAccounting();
+        return 0;
+    }
+    if (argc == 2 && std::strcmp(argv[1], "fixed-file") == 0) {
 #if defined(__linux__)
         CheckPosixFixedFileReleasesFlexibleAccounting();
+#endif
+#if defined(_WIN32)
+        CheckWindowsFixedPrivateFileReleasesFlexibleAccounting();
 #endif
         return 0;
     }

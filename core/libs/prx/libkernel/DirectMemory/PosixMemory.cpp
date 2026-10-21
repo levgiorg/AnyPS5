@@ -139,6 +139,7 @@ void* MapPrivateFileCopy(void* address, std::size_t rounded, int protection, int
         munmap_nid_postfix(mapped, rounded);
         return failed(error);
     }
+    if ((placement & GuestMapFixed) != 0) ReleaseFlexibleMappingRange(reinterpret_cast<std::uintptr_t>(mapped), rounded);
     return mapped;
 }
 #endif

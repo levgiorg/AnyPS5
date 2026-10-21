@@ -1606,8 +1606,9 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME guest_memory COMMAND guest_memory_tests)
     add_test(NAME guest_mmap_fixed_anonymous COMMAND guest_memory_tests fixed-anonymous)
+    add_test(NAME guest_mmap_fixed_file COMMAND guest_memory_tests fixed-file)
     if(WIN32)
-        set_tests_properties(guest_memory guest_mmap_fixed_anonymous PROPERTIES ENVIRONMENT_MODIFICATION
+        set_tests_properties(guest_memory guest_mmap_fixed_anonymous guest_mmap_fixed_file PROPERTIES ENVIRONMENT_MODIFICATION
             "PATH=path_list_prepend:$<TARGET_FILE_DIR:libkernel>")
     endif()
     add_test_executable(guest_mprotect_unmapped_tests ${LIBS_INCLUDE_DIR}/tests/GuestMprotectUnmapped.cpp)
