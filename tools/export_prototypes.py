@@ -44,7 +44,7 @@ KEYWORDS = {"return", "if", "else", "while", "for", "do", "switch", "case", "bre
 FUNCTION_POINTER = re.compile(r"typedef[^;{}]*\(\s*\*(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(")
 FUNCTION_POINTER_ALIAS = re.compile(
     r"\busing\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=[^;{}]*?"
-    r"\(\s*(?:[A-Za-z_][A-Za-z0-9_]*\s+)*\*\s*\)\s*\(")
+    r"\(\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*)*\*\s*\)\s*\(")
 
 
 class Parameters:
@@ -281,7 +281,6 @@ def is_declaration(text, start):
         return False
     words = prefix.split()
     if prefix.endswith("*"):
-        # A pointer return type, as in `extern int *sceNetErrnoLoc(void)`.
         words = words[:-1]
         if not words or not words[-1].isidentifier() or words[-1] in KEYWORDS:
             return False
@@ -354,7 +353,6 @@ def compare(exports, found, library=None, function_pointers=()):
                     reasons.append((observation, reason))
             if not reasons:
                 continue
-            # A call site settles the arguments, so it is the stronger evidence.
             reasons.sort(key=lambda item: 0 if item[0].kind == "call" else 1)
             observation, reason = reasons[0]
             mismatches.append(Mismatch(candidate, observation, reason))
