@@ -1,5 +1,9 @@
 # libScePlayGo technical debt
 
+### Silent stubs
+
+- [scePlayGoTerminate](../../../core/libs/prx/libScePlayGo/Export.cpp) (libScePlayGo) - returns 0, as the public reference does; the host tracks no initialization, so the call changes nothing
+
 ### Unknown function info
 
 - [scePlayGoRequestNextChunk, scePlayGoSnapshot](../../../core/libs/prx/libScePlayGo/Export.cpp) (libScePlayGo) - their names and NIDs are in the [PS5 3.20 export inventory](https://github.com/DNNDHH/PS5-3.20_Libs/blob/b2a77c09cd71c01f34c790cfbe98c751a13262ad/libScePlayGo.c), but no credible prototypes were found. They are declared without parameters solely to resolve known imports; this is not an ABI claim
