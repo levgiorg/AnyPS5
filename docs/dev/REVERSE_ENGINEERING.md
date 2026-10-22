@@ -19,6 +19,51 @@ one settles, and how to cite it.
 
 When sources disagree, say so in the pull request and in the debt entry.
 
+## What settles an export's name, and what settles its kind
+
+A NID is a hash of the name, so a NID in a database is not evidence: only a name is. The
+sources differ in what they settle.
+
+| Source | Settles |
+| --- | --- |
+| The [NID name database](https://github.com/zecoxao/sce_symbols) (`aerolib.csv` at `2883963a0a514ba6e77407a08ef4730a65e88254`) | The name, and the NID that follows from it |
+| The public PS5 payload SDK's [stub tables](https://github.com/ps5-payload-dev/sdk/blob/a7685ce8e97ce1f8a4f38253a41d54241c9124f1/sce_stubs/libSceLibcInternal.c) | The name and the kind: `.type <name>, @function` or `@object` |
+| The [PS5 3.20 export inventory](https://github.com/DNNDHH/PS5-3.20_Libs) | The name, per module. Every entry is marked `@function`, so it settles no kind |
+| The console's module list ([asylumexp/ghostldr](https://github.com/asylumexp/ghostldr/blob/master/ghostldr/data/ps5_ps4_sysmodules.txt), firmware 13.60) | Which module exists, and in which of `/system/common/lib`, `/system/priv/lib` and `/system_ex/common_ex/lib` it is |
+| The project's own [module table](../../core/libs/prx/libSceSysmodule/ModuleTable.hpp) | The module ID a title imports by |
+
+The SDK's 32 tables mark 759 symbols `@object`. This tree exports 114 of them on Linux and 148
+on Windows; the Windows build exports 34 more, the C++ typeinfo and type-name objects
+(`_ZTI*` and `_ZTS*`), which the ELF build does not export. Every one of them is a data
+object rather than a function. An export the SDK marks `@object` and the tree exports as a
+function is a defect: a consumer that resolves the NID and reads the object's address
+reads the machine code of the stub, and there is no trap, so the read succeeds with
+garbage. `tools/tests/test_data_object_exports.py` checks this for every built library.
+
+The 3.20 inventory has a table per module, so it settles which module owns a name for the
+264 of its 275 tables that name a module the console has. The 11 it does not
+(`libSceCustomMusicCore`, `libSceDseehx`, `libSceFios2`, `libSceNpTcs`,
+`libScePSNowGkp`, `WebAppBundle`, `gaikai-player`, `libfreetype`, `libharfbuzz`,
+`libicu`, `libpng16`) are the third-party modules, whose exports are the upstream
+project's own rather than the console's.
+
+## Which module owns a name
+
+A name belongs to the module of its own table, and the console's module list says which
+modules exist. The two do not always agree, and the disagreement is the trap:
+
+- The console has `libSceNpSessionSignaling.sprx`, `libSceNpSessionSignalingCrossplay.sprx`
+  and `libSceNpRemotePlaySessionSignaling.sprx` as three modules. The 3.20 inventory has a
+  table for the first and the third and **none for the Crossplay one**, and the five
+  `sceNpSessionSignalingCrossplay*` names are in the NID name database only. Declaring them
+  in `libSceNpSessionSignaling` mis-attributes them, and it does not fix a title: the
+  import binds to the Crossplay module, which this tree does not provide. A name that names
+  a family the console has as a module of its own belongs to that module.
+- `/system_ex/common_ex/lib` is a different directory from `/system/common/lib`. A module
+  there is not one of the system libraries a title mounts as its library directory, so its
+  exports are not a title's imports. `libSceFacebook.Yoga.sprx` is in
+  `/system_ex/common_ex/lib` and its exports are `YG*`, not `sce*`.
+
 ## What a call site settles
 
 The PS5 uses the System V AMD64 calling convention: integer and pointer arguments in `rdi`, `rsi`, `rdx`, `rcx`, `r8`,
