@@ -36,6 +36,7 @@
 - [sceRemoteplayProhibitStreaming](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
 - [sceRemoteplayServerLock](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
 - [sceRemoteplayServerUnLock](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
+- [sceRemoteplayTerminate](../../../core/libs/prx/libSceRemoteplay/Export.cpp) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
 - [sceRemoteplaySetApMode](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
 - [sceRemoteplaySetLogLevel](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)
 - [sceRemoteplaySetProhibition](../../../core/libs/prx/libSceRemoteplay/Export.cpp) (libSceRemoteplay) - declared without parameters, signature unknown; name from the PS5 3.20 export inventory (DNNDHH/PS5-3.20_Libs)

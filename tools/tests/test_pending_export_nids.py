@@ -616,6 +616,7 @@ LIBRARIES = {
     ],
     "libSceRemoteplay": [
         "sceRemoteplayNotifyCanWakeup",
+        "sceRemoteplayTerminate",
     ],
 }
 SOURCES = {

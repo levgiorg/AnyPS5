@@ -23,7 +23,8 @@ int APS5_VABI sceRemoteplayInitialize(void* heap, size_t heap_size) {
 }
 
 int APS5_VABI sceRemoteplayTerminate(void) {
- return 0;
+    NotImplemented_nid_no_patch(__func__);
+    return 0;
 }
 
 int APS5_VABI sceRemoteplayApprove(void) {
