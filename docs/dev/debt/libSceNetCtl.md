@@ -4,6 +4,10 @@
 
 - [sceNetCtlGetNatInfo and sceNetCtlGetResult](../../../core/libs/prx/libSceNetCtl/Export.cpp) - NAT discovery and service event results are not implemented and throw after native initialization and argument checks. NAT information is 16 bytes with a 32-bit size prefix; the remaining fields are unresolved.
 
+### Silent stubs
+
+- [sceNetCtlTerm, sceNetCtlApRpCheckCallback, sceNetCtlApRpClearEvent, sceNetCtlApRpRegisterCallback, sceNetCtlApRpUnregisterCallback, sceNetCtlApRpGetResult, sceNetCtlApRpGetState, sceNetCtlApRpGetInfo, sceNetCtlApRpStart, sceNetCtlApRpStartWithRetry, sceNetCtlApRpStartConf and sceNetCtlApRpStop](../../../core/libs/prx/libSceNetCtl/Export.cpp) (libSceNetCtl) - the supplied native module makes the Term a no-op and the ApRp calls constant successes that consume no arguments, and the host matches it; the ApRp argument types the module's own callers use remain unresolved
+
 ### Unknown function info
 
 - [sceNetCtlScanIpcInt](../../../core/libs/prx/libSceNetCtl/Export.cpp) (libSceNetCtl) - argument registers and IPC transfer directions are recovered for the info, connection, scan, NAT, bandwidth and Wi-Fi queries. The connection configuration is 1464 bytes, scan options 88, BSSID output 96, scan info 112, IPv6 info 256, internal NAT info 196, bandwidth info 32, bandwidth-estimation info 28 and Wi-Fi info 48. Their field semantics still require the receiving service; incomplete declarations preserve this gap. Scan queries transfer a six-byte BSSID and use a 64-bit in/out buffer size.
