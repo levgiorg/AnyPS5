@@ -144,7 +144,8 @@ int APS5_VABI sceHttpCacheSystemInit(const char* path) {
     return 0;
 }
 
-int APS5_VABI sceHttpCacheSystemSendStatistics() {
+int APS5_VABI sceHttpCacheSystemSendStatistics(void) {
+    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -153,7 +154,8 @@ int APS5_VABI sceHttpCacheSystemShutdown() {
     return 0;
 }
 
-int APS5_VABI sceHttpCacheSystemTerm() {
+int APS5_VABI sceHttpCacheSystemTerm(void) {
+    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 

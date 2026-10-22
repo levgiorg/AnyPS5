@@ -9,6 +9,10 @@ import import_audit
 import nid_names
 
 LIBRARIES = {
+    "libSceHttpCache": [
+        "sceHttpCacheSystemSendStatistics",
+        "sceHttpCacheSystemTerm",
+    ],
     "libSceCamera": [
         "sceCamera2Close",
         "sceCamera2Finalize",
@@ -619,6 +623,9 @@ LIBRARIES = {
     ],
 }
 SOURCES = {
+    "libSceHttpCache": [
+        "libSceHttpCache/Export.cpp",
+    ],
     "libSceCamera": [
         "libSceCamera/Export.cpp",
     ],
