@@ -21,7 +21,7 @@ uint32_t* APS5_VABI sceAgcDcbSetCxRegisterDirect(CommandBuffer* buf, ShaderRegis
 }
 
 uint32_t APS5_VABI sceAgcDcbSetCxRegisterDirectGetSize(void) {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetCxRegistersIndirect(CommandBuffer* buf, const volatile ShaderRegister* regs, std::uint32_t numRegs) {
@@ -30,7 +30,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetCxRegistersIndirect(CommandBuffer* buf, con
 
 std::uint32_t APS5_VABI sceAgcDcbSetCxRegistersIndirectGetSize(std::uint32_t numRegs) {
     static_cast<void>(numRegs);
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbSetShRegisterDirect(CommandBuffer* buf, ShaderRegister reg) {
@@ -38,7 +38,7 @@ uint32_t* APS5_VABI sceAgcDcbSetShRegisterDirect(CommandBuffer* buf, ShaderRegis
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetShRegisterDirectGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetShRegistersIndirect(CommandBuffer* buf, const volatile ShaderRegister* regs, std::uint32_t numRegs) {
@@ -47,7 +47,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetShRegistersIndirect(CommandBuffer* buf, con
 
 std::uint32_t APS5_VABI sceAgcDcbSetShRegistersIndirectGetSize(std::uint32_t numRegs) {
     static_cast<void>(numRegs);
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbSetUcRegisterDirect(CommandBuffer* buf, ShaderRegister reg) {
@@ -55,7 +55,7 @@ uint32_t* APS5_VABI sceAgcDcbSetUcRegisterDirect(CommandBuffer* buf, ShaderRegis
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetUcRegisterDirectGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetUcRegistersIndirect(CommandBuffer* buf, const volatile ShaderRegister* regs, std::uint32_t numRegs) {
@@ -64,7 +64,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetUcRegistersIndirect(CommandBuffer* buf, con
 
 std::uint32_t APS5_VABI sceAgcDcbSetUcRegistersIndirectGetSize(std::uint32_t numRegs) {
     static_cast<void>(numRegs);
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 }

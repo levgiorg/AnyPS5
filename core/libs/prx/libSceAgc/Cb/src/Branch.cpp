@@ -25,7 +25,7 @@ std::uint32_t* APS5_VABI sceAgcCbBranch(CommandBuffer* buf, std::uint8_t mode, s
 }
 
 std::uint32_t APS5_VABI sceAgcCbBranchGetSize() {
-    return 56;
+    return 14 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcCbCondWrite(CommandBuffer* buf, std::uint32_t compareFunction, std::uint32_t writeSpace, const volatile void* writeAddress, std::uint32_t writeData, const volatile void* pollAddress, std::uint32_t reference, std::uint32_t mask) {
@@ -41,7 +41,7 @@ std::uint32_t* APS5_VABI sceAgcCbCondWrite(CommandBuffer* buf, std::uint32_t com
 }
 
 std::uint32_t APS5_VABI sceAgcCbCondWriteGetSize() {
-    return 36;
+    return 9 * sizeof(std::uint32_t);
 }
 
 }

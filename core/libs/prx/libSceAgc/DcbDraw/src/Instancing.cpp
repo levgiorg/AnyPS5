@@ -13,7 +13,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetNumInstances(CommandBuffer* buf, std::uint3
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetNumInstancesGetSize() {
-    return 8;
+    return 2 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbSetBaseIndirectArgs(CommandBuffer* buf, uint32_t shader_type, const volatile void* indirect_base_addr) {

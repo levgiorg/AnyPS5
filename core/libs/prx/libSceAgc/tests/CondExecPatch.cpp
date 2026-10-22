@@ -10,6 +10,8 @@
 extern "C" {
 std::uint32_t* APS5_VABI sceAgcDcbCondExec(CommandBuffer*, const volatile std::uint32_t*, std::uint32_t);
 std::uint32_t* APS5_VABI sceAgcAcbCondExec(CommandBuffer*, const volatile std::uint32_t*, std::uint32_t);
+std::uint32_t APS5_VABI sceAgcDcbCondExecGetSize();
+std::uint32_t APS5_VABI sceAgcAcbCondExecGetSize();
 int APS5_VABI sceAgcCondExecPatchSetCommandAddress(std::uint32_t*, const volatile std::uint32_t*);
 int APS5_VABI sceAgcCondExecPatchSetEnd(std::uint32_t*, const volatile std::uint32_t*);
 int APS5_VABI sceAgcAsyncCondExecPatchSetCommandAddress(std::uint32_t*, const volatile std::uint32_t*);
@@ -21,12 +23,14 @@ namespace {
 constexpr std::uint32_t Sentinel = 0xabcdef01u;
 
 using CondExecWriter = std::uint32_t* (APS5_VABI *)(CommandBuffer*, const volatile std::uint32_t*, std::uint32_t);
+using SizeReader = std::uint32_t (APS5_VABI*)();
 using PatchFunction = int (APS5_VABI *)(std::uint32_t*, const volatile std::uint32_t*);
 
 struct Variant {
     CondExecWriter write;
     PatchFunction setEnd;
     PatchFunction setCommandAddress;
+    SizeReader getSize;
 };
 
 void check(bool condition, const char* message) {
@@ -57,6 +61,7 @@ struct Storage {
         words.fill(Sentinel);
         packet = write(&buffer, &condition, 3);
         check(packet == words.data() && packet[0] == 0xc0032200u && packet[4] == 3, "unexpected COND_EXEC packet");
+        check(buffer.cursor_up == words.data() + 5, "unexpected COND_EXEC packet length");
     }
 };
 
@@ -111,8 +116,9 @@ void testSetCommandAddress(const Variant& variant) {
 
 int main() {
     try {
-        for (const Variant& variant : {Variant{sceAgcDcbCondExec, sceAgcCondExecPatchSetEnd, sceAgcCondExecPatchSetCommandAddress},
-                                       Variant{sceAgcAcbCondExec, sceAgcAsyncCondExecPatchSetEnd, sceAgcAsyncCondExecPatchSetCommandAddress}}) {
+        for (const Variant& variant : {Variant{sceAgcDcbCondExec, sceAgcCondExecPatchSetEnd, sceAgcCondExecPatchSetCommandAddress, sceAgcDcbCondExecGetSize},
+                                       Variant{sceAgcAcbCondExec, sceAgcAsyncCondExecPatchSetEnd, sceAgcAsyncCondExecPatchSetCommandAddress, sceAgcAcbCondExecGetSize}}) {
+            check(variant.getSize() == 5 * sizeof(std::uint32_t), "COND_EXEC size mismatch");
             testSetEnd(variant);
             testSetCommandAddress(variant);
         }

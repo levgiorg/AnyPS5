@@ -39,7 +39,7 @@ std::uint32_t* APS5_VABI sceAgcAcbJump(CommandBuffer* buf, std::uint8_t cachePol
 }
 
 uint32_t APS5_VABI sceAgcAcbJumpGetSize(void) {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 // Encoded as the custom DISPATCH_RESET NOP packet the driver consumes on compute queues.
@@ -59,7 +59,7 @@ std::uint32_t* APS5_VABI sceAgcAcbRewind(CommandBuffer* buf, std::uint32_t initi
 }
 
 std::uint32_t APS5_VABI sceAgcAcbRewindGetSize() {
-    return 8;
+    return 2 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcAcbWaitUntilSafeForRendering(CommandBuffer* buf, std::uint32_t videoOutHandle, std::uint32_t displayBufferIndex) {

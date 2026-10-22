@@ -16,7 +16,7 @@ std::uint32_t* APS5_VABI sceAgcDcbDrawIndirect(CommandBuffer* buf, std::uint32_t
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndirectGetSize() {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbDrawIndirectMulti(CommandBuffer* buf, std::uint32_t dataOffsetInBytes, std::uint32_t countIndirect, std::uint32_t maxCountOrCount, const volatile void* countAddress, std::uint32_t strideInBytes, std::uint64_t modifier) {
@@ -53,7 +53,7 @@ std::uint32_t* APS5_VABI sceAgcDcbDrawIndirectMulti(CommandBuffer* buf, std::uin
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndirectMultiGetSize() {
-    return 64;
+    return 16 * sizeof(std::uint32_t);
 }
 
 }

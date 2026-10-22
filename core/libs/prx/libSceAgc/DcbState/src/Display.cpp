@@ -26,7 +26,7 @@ uint32_t* APS5_VABI sceAgcDcbPrimeUtcl2(CommandBuffer* buf, const volatile void*
 }
 
 std::uint32_t APS5_VABI sceAgcDcbPrimeUtcl2GetSize() {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 }

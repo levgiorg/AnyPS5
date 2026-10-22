@@ -284,7 +284,8 @@ class SilentStubSectionTests(unittest.TestCase):
     entry = f"- [Existing limitation](../../../{path}) - console layout is unknown.\n"
     library_debt = "docs/dev/debt/libSceExample.md"
 
-    def check_stub(self, debt_text, debt_path=library_debt):
+    def check_stub(self, debt_text, debt_path=library_debt,
+                   source_text="int APS5_VABI sceExample() { return 0; }\n"):
         checker = Path(__file__).resolve().parents[1] / "check_conventions.py"
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -307,7 +308,7 @@ class SilentStubSectionTests(unittest.TestCase):
             git("add", ".")
             git("commit", "-qm", "docs: record technical debt")
             source = root / self.path
-            source.write_text("int APS5_VABI sceExample() { return 0; }\n", encoding="utf-8")
+            source.write_text(source_text, encoding="utf-8")
             (root / debt_path).parent.mkdir(parents=True, exist_ok=True)
             (root / debt_path).write_text(debt_text, encoding="utf-8")
             git("add", ".")
@@ -331,6 +332,12 @@ class SilentStubSectionTests(unittest.TestCase):
         result = self.check_stub(debt, debt_path)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("All conventions checks passed", result.stdout)
+
+    def test_export_that_computes_its_return_value_is_not_a_stub(self):
+        result = self.check_stub("# libSceExample technical debt\n",
+                                 source_text="int APS5_VABI sceExample() { return 4 * sizeof(std::uint32_t); }\n")
+        self.assertNotIn("[silent-stub]", result.stdout, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_debt_outside_silent_stubs_does_not_exempt_export(self):
         for section in ("Build", "Unknown function info", "Functional"):

@@ -16,7 +16,7 @@ std::uint32_t* APS5_VABI sceAgcDcbDrawIndex(CommandBuffer* buf, std::uint32_t in
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndexGetSize() {
-    return 24;
+    return 6 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbDrawIndexAuto(CommandBuffer* buf, std::uint32_t indexCount, std::uint64_t modifier) {
@@ -24,7 +24,7 @@ std::uint32_t* APS5_VABI sceAgcDcbDrawIndexAuto(CommandBuffer* buf, std::uint32_
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndexAutoGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbDrawIndexOffset(CommandBuffer* buf, std::uint32_t indexOffset, std::uint32_t indexCount, std::uint64_t modifier) {
@@ -32,7 +32,7 @@ std::uint32_t* APS5_VABI sceAgcDcbDrawIndexOffset(CommandBuffer* buf, std::uint3
 }
 
 uint32_t APS5_VABI sceAgcDcbDrawIndexOffsetGetSize(void) {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirect(CommandBuffer* buf, uint32_t data_offset_in_bytes, uint64_t modifier) {
@@ -42,7 +42,7 @@ uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirect(CommandBuffer* buf, uint32_t data
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndexIndirectGetSize() {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirectMulti(CommandBuffer* buf, uint32_t data_offset_in_bytes, uint32_t count_indirect, uint32_t max_count_or_count, const volatile void* count_addr, uint32_t stride_in_bytes, uint64_t modifier) {
@@ -61,7 +61,7 @@ uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirectMulti(CommandBuffer* buf, uint32_t
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDrawIndexIndirectMultiGetSize() {
-    return 40;
+    return 10 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbDrawIndexMultiInstanced(CommandBuffer* buf, uint32_t index_count, const volatile void* index_addr, const volatile void* object_ids, uint32_t instance_count, uint64_t modifier) {
@@ -82,7 +82,7 @@ uint32_t* APS5_VABI sceAgcDcbDrawIndexMultiInstanced(CommandBuffer* buf, uint32_
 }
 
 uint32_t APS5_VABI sceAgcDcbDrawIndexMultiInstancedGetSize(void) {
-    return 32;
+    return 8 * sizeof(std::uint32_t);
 }
 
 }

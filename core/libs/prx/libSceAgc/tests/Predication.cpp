@@ -11,6 +11,7 @@ std::uint32_t APS5_VABI sceAgcDcbSetZPassPredicationEnableGetSize();
 std::uint32_t APS5_VABI sceAgcDcbSetPredicationDisableGetSize();
 std::uint32_t APS5_VABI sceAgcDcbSetBoolPredicationEnableGetSize();
 std::uint32_t* APS5_VABI sceAgcDcbSetIndexCount(CommandBuffer*, std::uint32_t);
+std::uint32_t APS5_VABI sceAgcDcbSetIndexCountGetSize();
 std::uint32_t* APS5_VABI sceAgcDcbSetIndexBuffer(CommandBuffer*, std::uint64_t);
 int APS5_VABI sceAgcSetPacketPredication(std::uint32_t*, std::uint32_t);
 int APS5_VABI sceAgcSetRangePredication(std::uint32_t*, const volatile std::uint32_t*, std::uint32_t);
@@ -53,6 +54,7 @@ void testPacket() {
     auto* packet = sceAgcDcbSetIndexCount(&storage.buffer, 7);
     const auto header = packet[0];
     check(sceAgcSetPacketPredication(packet, 1) == 0 && packet[0] == (header | 1u) && packet[1] == 7, "predication bit not set");
+    check(sceAgcDcbSetIndexCountGetSize() == 2 * sizeof(std::uint32_t), "index count size mismatch");
     check(sceAgcSetPacketPredication(packet, 0) == 0 && packet[0] == header, "predication bit not cleared");
     expectFailure([&] { sceAgcSetPacketPredication(packet, 2); });
     expectFailure([&] { sceAgcSetPacketPredication(nullptr, 1); });

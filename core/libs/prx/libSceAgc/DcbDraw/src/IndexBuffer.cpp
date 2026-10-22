@@ -14,7 +14,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetIndexBuffer(CommandBuffer* buf, std::uint64
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetIndexBufferGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetIndexCount(CommandBuffer* buf, std::uint32_t indexCount) {
@@ -22,7 +22,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetIndexCount(CommandBuffer* buf, std::uint32_
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetIndexCountGetSize() {
-    return 8;
+    return 2 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetIndexSize(CommandBuffer* buf, std::uint8_t indexSize, std::uint8_t cachePolicy) {
@@ -32,7 +32,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetIndexSize(CommandBuffer* buf, std::uint8_t 
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetIndexSizeGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbSetIndexSize_0600(CommandBuffer* buf, std::uint8_t indexSize, std::uint8_t cachePolicy, std::uint8_t perInstanceObjectId) {
@@ -49,7 +49,7 @@ std::uint32_t* APS5_VABI sceAgcDcbSetIndexIndirectArgs(CommandBuffer* buf, std::
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetIndexIndirectArgsGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 }

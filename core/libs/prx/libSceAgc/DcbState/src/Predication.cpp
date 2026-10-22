@@ -15,15 +15,15 @@ uint32_t* APS5_VABI sceAgcDcbSetPredication(CommandBuffer* buf, uint8_t conditio
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetZPassPredicationEnableGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetPredicationDisableGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetBoolPredicationEnableGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 }

@@ -16,7 +16,7 @@ uint32_t* APS5_VABI sceAgcDcbDispatchIndirect(CommandBuffer* buf, uint32_t data_
 }
 
 std::uint32_t APS5_VABI sceAgcDcbDispatchIndirectGetSize() {
-    return 12;
+    return 3 * sizeof(std::uint32_t);
 }
 
 }

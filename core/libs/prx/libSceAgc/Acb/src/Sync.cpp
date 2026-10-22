@@ -18,7 +18,7 @@ uint32_t* APS5_VABI sceAgcAcbCondExec(CommandBuffer* buf, const volatile uint32_
 }
 
 uint32_t APS5_VABI sceAgcAcbCondExecGetSize(void) {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcAcbWaitRegMem(CommandBuffer* buf, std::uint8_t size, std::uint8_t compareFunction, std::uint8_t cachePolicy, const volatile void* address, std::uint64_t reference, std::uint64_t mask, std::uint32_t pollCycles) {
@@ -37,11 +37,11 @@ std::uint32_t* APS5_VABI sceAgcAcbEventWrite(CommandBuffer* buf, std::uint8_t ev
 
 std::uint64_t APS5_VABI sceAgcAcbEventWriteGetSize(std::uint8_t eventType) {
     (void)eventType;
-    return 8;
+    return 2 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcAcbQueueEndOfShaderActionGetSize() {
-    return 32;
+    return 8 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcAcbMemSemaphore(CommandBuffer* buf, std::uint8_t action, std::uint8_t clientCode, const volatile void* address) {

@@ -33,7 +33,7 @@ uint32_t* APS5_VABI sceAgcDcbJump(CommandBuffer* buf, uint8_t mode, uint8_t cach
 }
 
 std::uint32_t APS5_VABI sceAgcDcbJumpGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcDcbResetQueue(CommandBuffer* buf, std::uint32_t op, std::uint32_t state) {
@@ -51,7 +51,7 @@ uint32_t* APS5_VABI sceAgcDcbRewind(CommandBuffer* buf, uint32_t initial_state) 
 }
 
 uint32_t APS5_VABI sceAgcDcbRewindGetSize(void) {
-    return 8;
+    return 2 * sizeof(std::uint32_t);
 }
 
 uint32_t* APS5_VABI sceAgcDcbWaitUntilSafeForRendering(CommandBuffer* buf, uint32_t video_out_handle, uint32_t display_buffer_index) {

@@ -58,19 +58,19 @@ uint32_t* APS5_VABI sceAgcDcbContextStateOp_0100(CommandBuffer* buf, uint32_t op
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetBaseDispatchIndirectArgsGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcDcbSetBaseDrawIndirectArgsGetSize() {
-    return 16;
+    return 4 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcDcbQueueEndOfShaderActionGetSize() {
-    return 32;
+    return 8 * sizeof(std::uint32_t);
 }
 
 std::uint32_t APS5_VABI sceAgcDcbGetLodStatsGetSize() {
-    return 20;
+    return 5 * sizeof(std::uint32_t);
 }
 
 }

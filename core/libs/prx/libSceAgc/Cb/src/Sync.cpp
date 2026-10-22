@@ -19,7 +19,7 @@ uint32_t APS5_VABI sceAgcCbNopGetSize(uint32_t size_in_dwords) {
 }
 
 std::uint32_t APS5_VABI sceAgcCbQueueEndOfPipeActionGetSize() {
-    return 32;
+    return 8 * sizeof(std::uint32_t);
 }
 
 std::uint32_t* APS5_VABI sceAgcCbReleaseMem(CommandBuffer* buf, std::uint8_t action, std::uint16_t gcrControl, std::uint8_t dst, std::uint8_t cachePolicy, const volatile Label* address, std::uint8_t dataSelect, std::uint64_t data, std::uint16_t gdsOffset, std::uint16_t gdsSize, std::uint8_t interrupt, std::uint32_t interruptContextId) {

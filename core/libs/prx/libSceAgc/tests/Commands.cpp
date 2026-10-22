@@ -28,6 +28,9 @@ extern "C" int APS5_VABI sceAgcInit_0090(std::uint32_t* state, std::uint32_t ver
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbDrawIndexAuto(CommandBuffer* buf, std::uint32_t indexCount, std::uint64_t modifier);
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirect(CommandBuffer* buf, std::uint32_t dataOffsetInBytes, std::uint64_t modifier);
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbDrawIndexIndirectMulti(CommandBuffer* buf, std::uint32_t dataOffsetInBytes, std::uint32_t countIndirect, std::uint32_t maxCountOrCount, const volatile void* countAddress, std::uint32_t strideInBytes, std::uint64_t modifier);
+extern "C" std::uint32_t APS5_VABI sceAgcDcbDrawIndexAutoGetSize();
+extern "C" std::uint32_t APS5_VABI sceAgcDcbDrawIndexIndirectGetSize();
+extern "C" std::uint32_t APS5_VABI sceAgcDcbDrawIndexIndirectMultiGetSize();
 extern "C" int APS5_VABI sceAgcWaitRegMemPatchAddress(std::uint32_t* cmd, const volatile void* address);
 extern "C" int APS5_VABI sceAgcWaitRegMemPatchCompareFunction(std::uint32_t* cmd, std::uint8_t compareFunction);
 extern "C" int APS5_VABI sceAgcWaitRegMemPatchReference(std::uint32_t* cmd, std::uint32_t reference);
@@ -50,6 +53,7 @@ extern "C" std::uint32_t* APS5_VABI sceAgcAcbPushMarker(CommandBuffer* buf, cons
 extern "C" std::uint32_t* APS5_VABI sceAgcAcbPopMarker(CommandBuffer* buf);
 extern "C" std::uint32_t* APS5_VABI sceAgcAcbSetMarker(CommandBuffer* buf, const char* str, std::uint32_t color);
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbSetIndexBuffer(CommandBuffer* buf, std::uint64_t indexAddress);
+extern "C" std::uint32_t APS5_VABI sceAgcDcbSetIndexBufferGetSize();
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbSetIndexIndirectArgs(CommandBuffer* buf, std::uint64_t attributeAddress, std::uint32_t attributeIndex);
 extern "C" std::uint32_t APS5_VABI sceAgcDcbSetIndexIndirectArgsGetSize();
 extern "C" std::uint32_t* APS5_VABI sceAgcDcbSetBaseIndirectArgs(CommandBuffer* buf, std::uint32_t shaderType, const volatile void* indirectBaseAddr);
@@ -108,6 +112,7 @@ void testPackets() {
     const std::array<std::uint32_t, 5> expected{0xc0001200u, 3, 0xc0012d00u, 17, 2};
     check(std::equal(expected.begin(), expected.end(), storage.words.begin()), "reset or draw packet mismatch");
     check(storage.buffer.cursor_up == storage.words.data() + expected.size(), "incorrect packet cursor advance");
+    check(sceAgcDcbDrawIndexAutoGetSize() == 3 * sizeof(std::uint32_t), "draw index auto size mismatch");
     const auto before = storage.words;
     expectFailure([&] { sceAgcDcbResetQueue(&storage.buffer, 0, 16); });
     check(storage.words == before, "invalid reset modified packet memory");
@@ -196,6 +201,8 @@ void testIndexedIndirectDraws() {
     const auto address = reinterpret_cast<std::uintptr_t>(&count);
     const std::array<std::uint32_t, 10> expectedMulti{0xc0083800u, 0x80, 0x280, 0x280, 0x40000280u, 8, static_cast<std::uint32_t>(address), static_cast<std::uint32_t>(address >> 32u), 20, 0};
     check(multi == storage.words.data() + expectedSingle.size() && std::equal(expectedMulti.begin(), expectedMulti.end(), multi), "indexed indirect multi draw packet mismatch");
+    check(sceAgcDcbDrawIndexIndirectGetSize() == expectedSingle.size() * sizeof(std::uint32_t), "indexed indirect draw size mismatch");
+    check(sceAgcDcbDrawIndexIndirectMultiGetSize() == expectedMulti.size() * sizeof(std::uint32_t), "indexed indirect multi draw size mismatch");
     check(storage.buffer.cursor_up == storage.words.data() + expectedSingle.size() + expectedMulti.size(), "incorrect indexed indirect cursor advance");
     const auto before = storage.words;
     expectFailure([&] { sceAgcDcbDrawIndexIndirect(&storage.buffer, 2, 0); });
@@ -318,6 +325,7 @@ void testIndexBuffer() {
     check(bound[1] == static_cast<std::uint32_t>(address) && bound[2] == static_cast<std::uint32_t>(address >> 32u), "index buffer address mismatch");
     const auto* unbound = sceAgcDcbSetIndexBuffer(&storage.buffer, 0);
     check(unbound == bound + 3 && unbound[0] == bound[0] && unbound[1] == 0 && unbound[2] == 0, "index buffer was not unbound");
+    check(sceAgcDcbSetIndexBufferGetSize() == 3 * sizeof(std::uint32_t), "index buffer size mismatch");
     const auto before = storage.words;
     try {
         sceAgcDcbSetIndexBuffer(&storage.buffer, 0x1001);
