@@ -30,7 +30,7 @@ sources differ in what they settle.
 | The public PS5 payload SDK's [stub tables](https://github.com/ps5-payload-dev/sdk/blob/a7685ce8e97ce1f8a4f38253a41d54241c9124f1/sce_stubs/libSceLibcInternal.c) | The name and the kind: `.type <name>, @function` or `@object` |
 | The [PS5 3.20 export inventory](https://github.com/DNNDHH/PS5-3.20_Libs) | The name, per module. Every entry is marked `@function`, so it settles no kind |
 | The console's module list ([asylumexp/ghostldr](https://github.com/asylumexp/ghostldr/blob/master/ghostldr/data/ps5_ps4_sysmodules.txt), firmware 13.60) | Which module exists, and in which of `/system/common/lib`, `/system/priv/lib` and `/system_ex/common_ex/lib` it is |
-| The project's own [module table](../core/libs/prx/libSceSysmodule/ModuleTable.hpp) | The module ID a title imports by |
+| The project's own [module table](../../core/libs/prx/libSceSysmodule/ModuleTable.hpp) | The module ID a title imports by |
 
 The SDK's 32 tables mark 759 symbols `@object`. This tree exports 114 of them on Linux and 148
 on Windows; the Windows build exports 34 more, the C++ typeinfo and type-name objects
