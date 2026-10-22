@@ -9,6 +9,12 @@ import import_audit
 import nid_names
 
 LIBRARIES = {
+    "libSceCompanionUtil": [
+        "sceCompanionUtilGetRemoteOskEvent",
+        "sceCompanionUtilInitialize",
+        "sceCompanionUtilOptParamInitialize",
+        "sceCompanionUtilTerminate",
+    ],
     "libSceCamera": [
         "sceCamera2Close",
         "sceCamera2Finalize",
@@ -619,6 +625,9 @@ LIBRARIES = {
     ],
 }
 SOURCES = {
+    "libSceCompanionUtil": [
+        "libSceCompanionUtil/Export.cpp",
+    ],
     "libSceCamera": [
         "libSceCamera/Export.cpp",
     ],
