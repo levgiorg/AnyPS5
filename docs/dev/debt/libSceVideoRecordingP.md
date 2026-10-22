@@ -1,5 +1,9 @@
 # libSceVideoRecordingP technical debt
 
+### Silent stubs
+
+- [sceVideoRecordingInit, sceVideoRecordingSendCommand and sceVideoRecordingTerm](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) (libSceVideoRecordingP) - each returns 0 and does nothing else, which is what the console's own body does (`xor eax, eax; ret`): the recording service is not implemented here, and no title in this repository calls these exports
+
 ### Unknown function info
 
 - [sceVideoRecordingGetInfo, sceVideoRecordingSetInfo](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) support native validation and errors before a recording context exists. Open and initialization remain protected unimplemented exports; live recording queries, control and volume changes are unavailable.
@@ -8,7 +12,7 @@
 - [sceVideoRecordingCloseByHandle, sceVideoRecordingGetInfoByHandle](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) - native handles are context pointers. Recording state and per-handle queries remain unimplemented.
 - [sceVideoRecordingCopyBGRAtoNV12](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) - the destination, source, 32-bit width and height arguments are confirmed. Pixel conversion remains unimplemented.
 - [sceVideoRecordingGetSupportInfo, sceVideoRecordingGetVideoOutMode](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) - GetSupportInfo writes an 18-byte payload whose fields remain unresolved. GetVideoOutMode takes a four-byte output confirmed by the native recording assembly and Avcap2 IPC descriptor; the mode values remain unresolved. Both exports remain unimplemented.
-- [sceVideoRecordingInit, sceVideoRecordingTerm](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) (libSceVideoRecordingP) - parameterless initialization and termination stubs; unimplemented and throw `NotImplemented_nid_no_patch`
+
 - [sceVideoRecordingInitialize](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp): the native initializer consumes no caller arguments; the former optional parameter is not read by the Avcap2 initializer or recording setup. Its unused parameter slot is retained because the protected body references it.
 - [sceVideoRecordingOpen, sceVideoRecordingOpen2](../../../core/libs/prx/libSceVideoRecordingP/Export.cpp) - the 32-byte and 40-byte parameter variants, four argument registers and 32-bit heap size are recovered. Mode, output mode, option and format semantics remain incomplete. QueryHddSize2 returns a signed 64-bit size or error; recording and sizing exports remain unimplemented.
 
