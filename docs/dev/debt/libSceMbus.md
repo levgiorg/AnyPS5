@@ -4,6 +4,8 @@
 
 - [libSceMbus](../../../core/libs/prx/libSceMbus/Export.cpp) implements only the no-device path: initialization and termination succeed, no device events are reported, device queries return no entries and `sceDeviceServiceGetGeneration` always returns 0, as the device set never changes. The generation a console starts at is unmeasured; [SharpProspero](https://github.com/SvenGDK/SharpProspero/blob/5dfdb4b0b166e83dc9ae275001afb695f12c7174/src/SharpProspero/Interop/Device/DeviceService.cs#L63-L65) documents `int sceDeviceServiceGetGeneration()` as a counter that advances when the device set changes
 
+- [sceMbusTerm](../../../core/libs/prx/libSceMbus/PendingExports.cpp) (libSceMbus) - returns 0 without reading its arguments, which is the constant the console's own module returns; the host's Mbus keeps no state, so the call changes nothing
+
 ### Unknown function info
 
 - [sceDeviceServiceQueryDeviceInfo_](../../../core/libs/prx/libSceMbus/Export.cpp): the 112-byte device-info layout and the third argument's meaning remain unresolved. The second argument is a six-byte HID usage filter pointer, not an integer. Initialization takes an optional 16-byte parameter structure with an optional thread configuration; custom scheduling throws because the host has no event worker. `sceDeviceServiceGetEventState` takes a clear flag, not a device type.
